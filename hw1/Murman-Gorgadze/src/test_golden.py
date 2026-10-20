@@ -1,5 +1,4 @@
 import sys, pathlib
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "src"))
 from datetime import date
 from reserve import Event, decide, rank_fans
 
