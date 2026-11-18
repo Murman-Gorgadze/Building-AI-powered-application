@@ -1,12 +1,17 @@
 """Reserve-or-skip decision + loyalty-fan ranking for the ticket reserve.
 
+Run:  python hw1/Murman-Gorgadze/src/reserve.py --tier 1 --day 2026-10-23 \
+          --capacity 50000 --sold 85 --days-out 21
+
 Deliberately transparent: a weighted score where every point can be
 explained to an operator. A learned model can replace `demand_score`
 later; the interface (Event -> Decision) stays the same.
 """
 from __future__ import annotations
 
+import argparse
 import math
+import sys
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 
@@ -93,3 +98,29 @@ def rank_fans(attendance: dict[str, list[tuple[str, date]]], category: str,
         if n >= min_visits:
             counts[fan] = n
     return sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description="Reserve-or-skip decision for one event")
+    p.add_argument("--id", default="cli")
+    p.add_argument("--category", default="football")
+    p.add_argument("--tier", type=int, required=True)
+    p.add_argument("--day", type=date.fromisoformat, required=True, help="YYYY-MM-DD")
+    p.add_argument("--capacity", type=int, required=True)
+    p.add_argument("--sold", type=float, required=True, help="percent sold, 0..100")
+    p.add_argument("--days-out", type=int, required=True)
+    p.add_argument("--tour", action="store_true")
+    a = p.parse_args(argv)
+    try:
+        d = decide(Event(a.id, a.category, a.tier, a.day, a.capacity, a.sold, a.days_out, a.tour))
+    except ValueError as err:
+        print(f"error: {err}", file=sys.stderr)
+        return 1
+    print(f"{d.action} score={d.score} seats={d.reserve_seats}")
+    for r in d.reasons:
+        print(f"  - {r}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

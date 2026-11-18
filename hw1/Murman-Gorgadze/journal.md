@@ -1,11 +1,11 @@
-# Pattern Journal · Murman
+# Pattern Journal · Murman-Gorgadze · Weeks 1 to 4
 
-> DRAFT: I can only fill in W2 from this work. Write W1, W3, W4 from your real weeks; 2 to 3 sentences each, honest beats polished.
+*Copied from `docs/journal/Murman-Gorgadze.md`. Honest note: I did not keep this journal during Weeks 1, 3 and 4. These entries were written on 18 November 2026, after the HW1 feedback. They describe only what is in the repo, what I delegated, and how it was checked, not lab moments I cannot remember.*
 
-**W1 · Context as Budget** · [Where you applied it · what you delegated · how you verified]
+**W1 · Context as Budget** · *Where:* the napkin math in `spec.md`: the decision itself costs $0 because `decide()` calls no model, and only an optional one-line operator reason costs tokens. *Delegated:* the arithmetic and the price to the agent. *Verified:* I re-read the price from OpenRouter's public models list on 18 Nov. The agent's $0.30 / $2.50 per million was the price of a different model (`gemini-3.5-flash-lite`). The real price of `gemini-3.8-flash` is $0.825 / $4.125, so the month is $1.67, not $0.83. *Do differently:* every price in a doc gets a date and a source next to it.
 
-**W2 · Spec Before Code** · Wrote `spec.md` for the reserve-or-skip engine before any code, with measurable success criteria and napkin math. I delegated the first draft of code and docs to AI, then verified with three golden tests and by reading the reasons it produced for each score.
+**W2 · Spec Before Code** · *Where:* `spec.md` acceptance criteria 1 to 6, each tied to a named test. *Delegated:* the first spec and code draft, then the rewrite after feedback. *Verified:* broke the code on purpose in a scratch copy. Three bugs passed all three original tests, because the spec only had happy-path criteria, so the tests did too. With AC4 (WATCH) and AC5 (ValueError) in the spec, the new tests catch all five mutations. *Do differently:* write the error criterion first.
 
-**W3 · Uncertainty-Aware UX** · [Idea that fits: WATCH is an explicit "not sure" state between RESERVE and SKIP. Write what you really did.]
+**W3 · Uncertainty-Aware UX** · *Where:* WATCH is the explicit "not sure" outcome between RESERVE and SKIP. A score of 40 to 59 holds no seats, and the operator sees the reasons instead of a forced yes or no. *Delegated:* the threshold code. *Verified:* `test_watch_band_holds_no_seats` (score 45, WATCH, 0 seats). Removing the band made the new suite fail and the old one pass. *Do differently:* treat "unsure" as a first-class output from day one, not as a side effect of two thresholds.
 
-**W4 · Grounded Generation** · [Idea that fits: the optional explanation message may only use the listed `reasons`, never invent facts. Write what you really did.]
+**W4 · Grounded Generation** · *Where:* the team's operator reason (`src/reason.py`). The model may only restate the `reasons` list from `decide()`, and a check rejects any sentence that contains a number not in that list, falling back to a plain template. *Delegated:* `reason.py`, `llm.py` and their tests. *Verified:* a fake-model test feeds an invented "+40" and checks that the fallback is used. *Do differently:* define what counts as a source before writing the prompt, not after.
