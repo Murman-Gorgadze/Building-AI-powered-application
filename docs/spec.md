@@ -58,7 +58,7 @@ Decide which upcoming events should hold seats back for loyal fans, how many, an
 No key in any file. Tests never call a real model. Every model call goes through `src/llm.py`. No personal data in `data/` or prompts.
 
 ## Napkin math
-`decide()` costs $0. Operator reason: 50 RESERVE decisions a day × 30 = 1,500 calls a month × (≈ 250 tokens in × $0.825/M + ≈ 40 out × $4.125/M) ≈ **$0.56 a month** on `google/gemini-3.8-flash` (price read 2026-11-18). The prompt is short: the system line plus about eight lines of facts. HW1 assumed 600 / 150 tokens ($1.67). To be replaced by medians from `logs/usage.jsonl`.
+`decide()` costs $0. Operator reason: 50 RESERVE decisions a day × 30 = 1,500 calls a month × (≈ 250 tokens in × $0.825/M + ≈ 40 out × $4.125/M) ≈ **$0.56 a month** on `google/gemini-3.8-flash` (price read 2026-11-18). The prompt is short: the system line plus about eight lines of facts. HW1 assumed 600 / 150 tokens ($1.67). **Measured 20 Nov 2026** (one live call, free model, `logs/usage.jsonl`): 158 tokens in, 120 out, 1,642 ms, so about $0.0006 a call and **$0.94 a month** at the Gemini price. The output hit the 120-token cap; still to be replaced by a median of at least ten calls.
 
 ## Out of scope (for now)
 Payments, seat maps, a trained model, the fan-facing mobile UI, resale.

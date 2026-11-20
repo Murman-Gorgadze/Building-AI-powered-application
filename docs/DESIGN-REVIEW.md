@@ -73,16 +73,18 @@ flowchart LR
 
 ## 5 · Token budget
 
-Medians must come from `logs/usage.jsonl`. Until the first live calls are logged, rows are **estimates** at the OpenRouter price read on 18 November 2026: $0.825 per million tokens in, $4.125 out, for `google/gemini-3.8-flash`. The first draft used $0.30 / $2.50, which is another model's price.
+Measured rows come from `logs/usage.jsonl`. Prices are OpenRouter's, read on 18 November 2026: $0.825 per million tokens in, $4.125 out, for `google/gemini-3.8-flash`. The first draft used $0.30 / $2.50, which is another model's price.
+
+**First live calls, 20 November 2026.** We had no paid credit, so the calls went to OpenRouter's free models through the same `src/llm.py` path (`FANRESERVE_MODEL=...:free`). Seven calls are in `logs/usage.jsonl`: six were refused by the provider with HTTP 429 (free model busy) and fell back to the template, as designed; one succeeded on `nvidia/nemotron-3.5-lightning:free` with **158 tokens in, 120 out, 1,642 ms**. The output hit the `max_tokens=120` cap and `is_grounded()` rejected it, so the operator saw the template sentence. The cost below applies the Gemini price to the measured token counts. One successful call is a sample, not a median: we will replace it once there are at least ten.
 
 | Feature | Model | Tokens in / out (median) | Cost per request | Latency (median) | Source |
 |---|---|---|---|---|---|
-| operator reason | `google/gemini-3.8-flash` | about 250 / 40 | about $0.0004 | not measured | estimate; replace from `logs/usage.jsonl` |
+| operator reason | `google/gemini-3.8-flash` (measured on `nvidia/nemotron-3.5-lightning:free`) | 158 / 120 (1 call) | $0.0006 at the Gemini price ($0 on the free model) | 1,642 ms (1 call) | `logs/usage.jsonl`, 2026-11-20 |
 | `decide()` | none | 0 / 0 | $0 | under 1 ms | `tests/test_reserve.py` |
 | fan question | not chosen | about 1,650 / 150 | about $0.0020 | n/a | estimate, **planned** slice |
 | ticket extraction | not chosen | about 1,400 / 200 | about $0.0020 | n/a | estimate, **planned** slice |
 
-**Monthly** at 500 fans × 2 questions a day, 100 ticket photos a day and 50 operator reasons a day: 30,000 × $0.0020 + 3,000 × $0.0020 + 1,500 × $0.0004 ≈ **$66 a month**, almost all of it from the planned fan Q&A. Today's built feature alone costs about $0.60 a month.
+**Monthly** at 500 fans × 2 questions a day, 100 ticket photos a day and 50 operator reasons a day: 30,000 × $0.0020 + 3,000 × $0.0020 + 1,500 × $0.0006 ≈ **$67 a month**, almost all of it from the planned fan Q&A. Today's built feature alone costs about $0.94 a month (measured tokens), up from the $0.60 estimate: the output used all 120 allowed tokens instead of the 40 we expected.
 
 **RAG or long context.** Planned slice. A 30,000-token corpus (an estimate: no corpus exists yet) in every prompt would cost about $0.025 per question against about $0.002 with five retrieved chunks, roughly 13 times more, and slower. We will use retrieval and replace the corpus size with the real count.
 
