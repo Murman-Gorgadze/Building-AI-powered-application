@@ -37,7 +37,7 @@ Calling `decide()`, any UI, retries or a fallback model, catching invented facts
 
 ## Napkin math
 
-Prompt ≈ 350 characters ≈ 100 tokens in, ≈ 40 out. 50 RESERVE decisions a day × (100 × $0.30/M + 40 × $2.50/M) × 30 ≈ **$0.20 a month** (OpenRouter price for `google/gemini-2.5-flash`, checked 21 Nov 2026 from the OpenRouter models API). WATCH and SKIP cost nothing.
+Prompt measured at 116–129 tokens in (live runs, 21 Nov), so ≈ 130 in, ≈ 40 out for the sentence. 50 RESERVE decisions a day × (130 × $0.30/M + 40 × $2.50/M) × 30 ≈ **$0.21 a month** (OpenRouter price for `google/gemini-2.5-flash`, checked 21 Nov 2026 from the OpenRouter models API). WATCH and SKIP cost nothing. Worst case: if the model "thinks" first, reasoning tokens are billed as output, up to the 1000-token cap: 50 × (130 × $0.30/M + 1000 × $2.50/M) × 30 ≈ **$3.81 a month**.
 
 ## Risks
 
@@ -45,4 +45,4 @@ The model adds a claim with no number ("always sells out") and the check misses 
 
 ## Verification
 
-`pytest hw1/Tornike111` is green (16 tests: criteria 1-6, all with a fake model; plus 1 `xfail` test for the known limit in golden question 4). Golden questions in `golden.md` run from the CLI.
+`pytest hw1/Tornike111` is green (18 tests: criteria 1-6, all with a fake model; plus 1 `xfail` test for the known limit in golden question 4). Golden questions in `golden.md` run from the CLI.

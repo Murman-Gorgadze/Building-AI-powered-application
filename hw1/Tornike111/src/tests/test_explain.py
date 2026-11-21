@@ -83,7 +83,8 @@ def test_llm_logs_usage(tmp_path):
         return {"model": "fake/model", "usage": {"prompt_tokens": 600, "completion_tokens": 150},
                 "choices": [{"message": {"content": " hi "}}]}
     log = tmp_path / "usage.jsonl"
-    r = llm.complete("p", transport=transport, log_path=log)
+    # name the model: HW1_MODEL in the terminal must not change this test
+    r = llm.complete("p", model="google/gemini-2.5-flash", transport=transport, log_path=log)
     assert r.text == "hi" and r.tokens_in == 600
     assert r.cost_usd == pytest.approx((600 * 0.30 + 150 * 2.50) / 1e6)
     row = log.read_text().strip()
@@ -114,3 +115,22 @@ def test_cli_bad_input_exits_2(case, tmp_path, capsys):
 def test_g4_swapped_numbers_known_limit():
     out = explain(RESERVE, call=fake_model("Hold 5000 seats: 78% sold, score 85."))
     assert out.source == "fallback"
+
+
+def test_llm_free_model_costs_nothing(tmp_path):
+    def transport(payload):
+        return {"usage": {"prompt_tokens": 600, "completion_tokens": 150},
+                "choices": [{"message": {"content": "hi"}}]}
+    r = llm.complete("p", model="some/model:free", transport=transport, log_path=tmp_path / "u.jsonl")
+    assert r.cost_usd == 0.0
+
+
+# Found in the live run (21 Nov): a reasoning model returned content = None.
+def test_llm_empty_reply_is_logged_then_raises(tmp_path):
+    def transport(payload):
+        return {"usage": {"prompt_tokens": 150, "completion_tokens": 120},
+                "choices": [{"message": {"content": None}, "finish_reason": "length"}]}
+    log = tmp_path / "u.jsonl"
+    with pytest.raises(RuntimeError, match="no text"):
+        llm.complete("p", transport=transport, log_path=log)
+    assert '"tokens_out": 120' in log.read_text()   # the call was still logged
