@@ -105,3 +105,12 @@ def test_cli_bad_input_exits_2(case, tmp_path, capsys):
         path.write_text("{not json")
     assert main([str(path)]) == 2
     assert capsys.readouterr().err.startswith("error:")
+
+
+# g4: KNOWN LIMIT. Both numbers exist in the decision, but swapped (85% sold -> "78% sold").
+# The check only asks "does each number appear somewhere?", so it accepts this sentence.
+# strict=True: if the check is ever fixed, this test passes and pytest says to remove the mark.
+@pytest.mark.xfail(strict=True, reason="number check does not tie a number to its meaning")
+def test_g4_swapped_numbers_known_limit():
+    out = explain(RESERVE, call=fake_model("Hold 5000 seats: 78% sold, score 85."))
+    assert out.source == "fallback"

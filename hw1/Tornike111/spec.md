@@ -41,8 +41,8 @@ Prompt ≈ 350 characters ≈ 100 tokens in, ≈ 40 out. 50 RESERVE decisions a 
 
 ## Risks
 
-The model adds a claim with no number ("always sells out") and the check misses it. Mitigation now: the operator still sees the full reasons list in the decision; later: a per-claim check or a judge model.
+The model adds a claim with no number ("always sells out") and the check misses it. The model swaps numbers that are both in the decision ("78% sold, score 85") and the check misses that too, because it only asks whether each number appears somewhere (golden question 4, a known fail). Mitigation now: the operator still sees the full reasons list in the decision; later: a per-claim check or a judge model.
 
 ## Verification
 
-`pytest hw1/Tornike111` is green (16 tests: criteria 1-6, all with a fake model). Golden questions in `golden.md` run from the CLI.
+`pytest hw1/Tornike111` is green (16 tests: criteria 1-6, all with a fake model; plus 1 `xfail` test for the known limit in golden question 4). Golden questions in `golden.md` run from the CLI.
