@@ -1,6 +1,6 @@
 # Design Review · FanReserve · MG-TV
 
-Members: Murman Gorgadze · Murman-Gorgadze · repo keeper, spec keeper · Tornike Varshalomidze · Tornike111 · eval keeper · Repo: https://github.com/Murman-Gorgadze/Building-AI-powered-application · tag `design-review-v2`
+Members: Murman Gorgadze · Murman-Gorgadze · repo keeper, spec keeper · Tornike Varshalomidze · Tornike111 · eval keeper · Repo: https://github.com/Murman-Gorgadze/Building-AI-powered-application · tag `design-review`
 
 *Revised on 18 November 2026 after the Milestone 1 feedback. Every line either points at a file in this repo or is marked **planned** with a week. The version graded at the deadline is commit 988cf31.*
 
