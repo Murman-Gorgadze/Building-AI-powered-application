@@ -15,6 +15,6 @@
 7. A test failed only because `HW1_MODEL` was set in my terminal. Caught by running pytest after the live runs. Fixed by naming the model in the test.
 8. My own mistake: a Find and Replace without Match Case changed "HW1" to "hw1" in text and in `HW1_MODEL`. Caught with `git diff`; restored and redone path by path.
 
-**How I verified.** `pytest hw1/Tornike111`: 18 passed, 1 xfailed. CLI runs for exit codes 0 and 2. Live calls on 21 Nov, logged in `src/logs/usage.jsonl` (details in `golden.md`). Price read from the OpenRouter models API.
+**How I verified.** Before opening the PR I read the tests first, then the code. `pytest hw1/Tornike111`: 18 passed, 1 xfailed. CLI runs for exit codes 0 and 2. Live calls on 21 Nov, logged in `src/logs/usage.jsonl` (details in `golden.md`). Price read from the OpenRouter models API.
 
-**Next time.** Do a live run on day one: it found two bugs no fake-model test could. Put the folder rule and "one sentence" checks into the spec before delegating. Read every diff before committing.
+**Next time.** Do a live run on day one: it found two bugs no fake-model test could. Put the folder rule and "one sentence" checks into the spec before delegating. Read the tests before the code from the first session, not only at the end.
