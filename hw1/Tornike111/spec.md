@@ -1,6 +1,6 @@
 # HW1 spec · Operator reason message
 
-*FanReserve · individual feature · one page. Run from the repo root: `pip install -r HW1/Tornike111/src/requirements.txt && pytest HW1/Tornike111` · Try it: `python HW1/Tornike111/src/explain.py HW1/Tornike111/src/examples/reserve.json --offline` · Live model (optional): `export OPENROUTER_API_KEY=...` and drop `--offline`.*
+*FanReserve · individual feature · one page. Run from the repo root: `pip install -r hw1/Tornike111/src/requirements.txt && pytest hw1/Tornike111` · Try it: `python hw1/Tornike111/src/explain.py hw1/Tornike111/src/examples/reserve.json --offline` · Live model (optional): `export OPENROUTER_API_KEY=...` and drop `--offline`.*
 
 ## Goal
 
@@ -23,13 +23,13 @@ Input: decision JSON with `event_id`, `action`, `score`, `reserve_seats`, `reaso
 
 ## Context the agent needs
 
-- Decision shape: `HW1/Murman-Gorgadze/src/reserve.py` (read only, not imported, so my folder runs on its own).
-- `HW1/Murman-Gorgadze/AGENTS.md`: keys from env only, log every model call.
+- Decision shape: `hw1/Murman-Gorgadze/src/reserve.py` (read only, not imported, so my folder runs on its own).
+- `AGENTS.md` (repo root): keys from env only, log every model call.
 - This file.
 
 ## Constraints
 
-Python 3.11+, standard library only (pytest for tests). Key from `OPENROUTER_API_KEY`, model from `HW1_MODEL` (default `google/gemini-2.5-flash`). Every file stays inside `HW1/Tornike111/`.
+Python 3.11+, standard library only (pytest for tests). Key from `OPENROUTER_API_KEY`, model from `HW1_MODEL` (default `google/gemini-2.5-flash`). Every file stays inside `hw1/Tornike111/`.
 
 ## Out of scope
 
@@ -37,7 +37,7 @@ Calling `decide()`, any UI, retries or a fallback model, catching invented facts
 
 ## Napkin math
 
-Prompt ≈ 350 characters ≈ 100 tokens in, ≈ 40 out. 50 RESERVE decisions a day × (100 × $0.30/M + 40 × $2.50/M) × 30 ≈ **$0.20 a month** (prices are an assumption; check OpenRouter). WATCH and SKIP cost nothing.
+Prompt ≈ 350 characters ≈ 100 tokens in, ≈ 40 out. 50 RESERVE decisions a day × (100 × $0.30/M + 40 × $2.50/M) × 30 ≈ **$0.20 a month** (OpenRouter price for `google/gemini-2.5-flash`, checked 21 Nov 2026 from the OpenRouter models API). WATCH and SKIP cost nothing.
 
 ## Risks
 
@@ -45,4 +45,4 @@ The model adds a claim with no number ("always sells out") and the check misses 
 
 ## Verification
 
-`pytest HW1/Tornike111` is green (10 tests: criteria 1-6, all with a fake model). Golden questions in `golden.md` run from the CLI.
+`pytest hw1/Tornike111` is green (10 tests: criteria 1-6, all with a fake model). Golden questions in `golden.md` run from the CLI.

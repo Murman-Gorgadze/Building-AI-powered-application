@@ -14,7 +14,7 @@ from pathlib import Path
 
 URL = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_MODEL = os.environ.get("HW1_MODEL", "google/gemini-2.5-flash")
-# ASSUMPTION: USD per million tokens. Check the current OpenRouter price page.
+# USD per million tokens for google/gemini-2.5-flash, from the OpenRouter models API on 21 Nov 2026.
 PRICE_IN, PRICE_OUT = 0.30, 2.50
 LOG_PATH = Path(os.environ.get("HW1_USAGE_LOG", Path(__file__).parent / "logs" / "usage.jsonl"))
 
