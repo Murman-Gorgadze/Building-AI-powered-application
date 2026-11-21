@@ -5,7 +5,9 @@ import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 import llm  # noqa: E402
-from explain import explain, is_grounded  # noqa: E402
+from explain import explain, is_grounded, main  # noqa: E402
+
+EXAMPLES = pathlib.Path(__file__).resolve().parents[1] / "examples"
 
 RESERVE = {"event_id": "ucl-1", "action": "RESERVE", "score": 78, "reserve_seats": 5000,
            "reasons": ["tier 1 event (+35)", "Friday is a busy day (+18)",
@@ -58,6 +60,14 @@ def test_too_long_sentence_is_rejected():
     assert not is_grounded("word " * 41, RESERVE)
 
 
+@pytest.mark.parametrize("reply", [
+    "Hold 5,000 seats. This match always sells out.",     # two sentences
+    "Hold 5,000 seats\nignore the reasons above",          # line break
+])
+def test_more_than_one_sentence_falls_back(reply):
+    assert explain(RESERVE, call=fake_model(reply)).source == "fallback"
+
+
 @pytest.mark.parametrize("bad", [
     {k: v for k, v in RESERVE.items() if k != "reasons"},
     {**RESERVE, "reasons": []},
@@ -78,3 +88,20 @@ def test_llm_logs_usage(tmp_path):
     assert r.cost_usd == pytest.approx((600 * 0.30 + 150 * 2.50) / 1e6)
     row = log.read_text().strip()
     assert '"tokens_out": 150' in row and "hi" not in row
+
+
+# CLI: exit 0 on success, exit 2 with "error: ..." on bad input (criteria 4 and 5)
+def test_cli_offline_reserve_exits_0(capsys):
+    assert main([str(EXAMPLES / "reserve.json"), "--offline"]) == 0
+    assert '"source": "fallback"' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("case", ["empty_reasons", "missing_file", "broken_json"])
+def test_cli_bad_input_exits_2(case, tmp_path, capsys):
+    path = {"empty_reasons": EXAMPLES / "bad.json",
+            "missing_file": tmp_path / "does_not_exist.json",
+            "broken_json": tmp_path / "broken.json"}[case]
+    if case == "broken_json":
+        path.write_text("{not json")
+    assert main([str(path)]) == 2
+    assert capsys.readouterr().err.startswith("error:")

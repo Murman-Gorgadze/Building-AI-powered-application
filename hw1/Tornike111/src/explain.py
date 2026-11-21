@@ -19,6 +19,7 @@ import llm
 
 MAX_WORDS = 40
 NUMBER = re.compile(r"\d+(?:\.\d+)?")
+SECOND_SENTENCE = re.compile(r"[.!?]\s+\S")  # a sentence end followed by more text
 
 
 @dataclass
@@ -53,9 +54,16 @@ def _numbers(text: str) -> set[str]:
     return set(NUMBER.findall(text.replace(",", "")))
 
 
+def is_one_sentence(text: str) -> bool:
+    """No line break and no second sentence ("2.5" is fine: no space after the dot)."""
+    text = text.strip()
+    return "\n" not in text and not SECOND_SENTENCE.search(text)
+
+
 def is_grounded(sentence: str, d: dict) -> bool:
     allowed = _numbers(" ".join(d["reasons"]) + f" {d['score']} {d['reserve_seats']}")
     return (0 < len(sentence.split()) <= MAX_WORDS
+            and is_one_sentence(sentence)
             and _numbers(sentence) <= allowed)
 
 
@@ -86,11 +94,11 @@ def main(argv=None) -> int:
     p.add_argument("decision", help="path to a decision JSON file")
     p.add_argument("--offline", action="store_true", help="skip the model, use the template")
     args = p.parse_args(argv)
-    with open(args.decision) as f:
-        decision = json.load(f)
     try:
+        with open(args.decision, encoding="utf-8") as f:
+            decision = json.load(f)  # broken JSON raises JSONDecodeError, a ValueError
         result = explain(decision, call=None if args.offline else llm.complete)
-    except ValueError as exc:
+    except (OSError, ValueError) as exc:  # OSError: missing or unreadable file
         print(f"error: {exc}", file=sys.stderr)
         return 2
     print(json.dumps(None if result is None else result.__dict__, ensure_ascii=False))

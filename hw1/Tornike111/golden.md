@@ -1,6 +1,6 @@
 # HW1 golden questions · Operator reason message
 
-Run on 21 November 2026 with `pytest hw1/Tornike111 -v` (10 passed) and the CLI commands below. The tests replace the model with a fake that returns a fixed reply, so no key is needed.
+Run on 21 November 2026 with `pytest hw1/Tornike111 -v` (16 passed) and the CLI commands below. The tests replace the model with a fake that returns a fixed reply, so no key is needed.
 
 Decision used in g1 and g2 (`src/examples/reserve.json`): `ucl-1`, RESERVE, score 78, 5000 seats, reasons `tier 1 event (+35)`, `Friday is a busy day (+18)`, `selling fast, 85% sold 21d out (+25)`.
 

@@ -14,11 +14,11 @@ The operator (ticketing manager) approving holds. They want the "why" in one lin
 
 Input: decision JSON with `event_id`, `action`, `score`, `reserve_seats`, `reasons` (list of strings). Output: `{"text", "source": "model" | "fallback"}` or `null`.
 
-1. RESERVE, and the model sentence has ≤ 40 words and every number in it appears in the decision → returns that sentence, `source = "model"`; the prompt contains every listed reason.
+1. RESERVE, and the model reply is one sentence (no line break, no second sentence), has ≤ 40 words, and every number in it appears in the decision → returns that sentence, `source = "model"`; the prompt contains every listed reason.
 2. RESERVE, and the model sentence contains any number not in the decision → returns the template `Reserve <seats> seats for <id> (score <score>): <reasons joined by "; ">.`, `source = "fallback"`.
 3. WATCH or SKIP → returns `null` and makes zero model calls.
 4. Error: the model call raises (no key, network error) → template, `source = "fallback"`; CLI exit code 0.
-5. Error: a missing field, empty `reasons` or unknown `action` → `ValueError`; CLI prints `error: ...` and exits 2.
+5. Error: a missing field, empty `reasons` or unknown `action` → `ValueError`; CLI prints `error: ...` and exits 2. A missing file or invalid JSON → the same `error: ...` and exit 2, no traceback.
 6. Cost and latency: every model call goes through `llm.py`, which appends `model, tokens_in, tokens_out, cost_usd, latency_s` (never the text) to `src/logs/usage.jsonl`. Tests make no network call.
 
 ## Context the agent needs
@@ -45,4 +45,4 @@ The model adds a claim with no number ("always sells out") and the check misses 
 
 ## Verification
 
-`pytest hw1/Tornike111` is green (10 tests: criteria 1-6, all with a fake model). Golden questions in `golden.md` run from the CLI.
+`pytest hw1/Tornike111` is green (16 tests: criteria 1-6, all with a fake model). Golden questions in `golden.md` run from the CLI.
