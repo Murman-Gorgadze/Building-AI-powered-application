@@ -14,7 +14,7 @@ from pathlib import Path
 
 URL = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_MODEL = os.environ.get("HW1_MODEL", "google/gemini-2.5-flash")
-# ASSUMPTION: USD per million tokens. Check the current OpenRouter price page.
+# USD per million tokens for google/gemini-2.5-flash, from the OpenRouter models API on 21 Nov 2026.
 PRICE_IN, PRICE_OUT = 0.30, 2.50
 LOG_PATH = Path(os.environ.get("HW1_USAGE_LOG", Path(__file__).parent / "logs" / "usage.jsonl"))
 
@@ -40,7 +40,12 @@ def _openrouter(payload: dict) -> dict:
         return json.load(resp)
 
 
-def complete(prompt: str, *, model: str = DEFAULT_MODEL, max_tokens: int = 120,
+# Reasoning models spend output tokens "thinking" before the answer; with 120 they ran out
+# (finish_reason: length, live run 21 Nov). This is a ceiling, not a charge.
+MAX_TOKENS = 1000
+
+
+def complete(prompt: str, *, model: str = DEFAULT_MODEL, max_tokens: int = MAX_TOKENS,
              transport=_openrouter, log_path: Path | None = None) -> LLMResult:
     payload = {"model": model, "max_tokens": max_tokens, "temperature": 0,
                "messages": [{"role": "user", "content": prompt}]}
@@ -49,14 +54,20 @@ def complete(prompt: str, *, model: str = DEFAULT_MODEL, max_tokens: int = 120,
     latency = time.perf_counter() - start
     usage = raw.get("usage", {})
     t_in, t_out = usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0)
+    choice = raw["choices"][0]
+    # Reasoning models can spend every output token "thinking" and return content = None.
+    content = choice["message"].get("content") or ""
     result = LLMResult(
-        text=raw["choices"][0]["message"]["content"].strip(),
+        text=content.strip(),
         model=raw.get("model", model), tokens_in=t_in, tokens_out=t_out,
-        cost_usd=round((t_in * PRICE_IN + t_out * PRICE_OUT) / 1_000_000, 8),
+        cost_usd=0.0 if model.endswith(":free")  # OpenRouter free models cost nothing
+        else round((t_in * PRICE_IN + t_out * PRICE_OUT) / 1_000_000, 8),
         latency_s=round(latency, 3))
     path = log_path or LOG_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a") as f:
         row = {k: v for k, v in asdict(result).items() if k != "text"}
         f.write(json.dumps({"ts": time.time(), **row}) + "\n")
+    if not result.text:  # logged first: the tokens were used even with no answer
+        raise RuntimeError(f"model returned no text (finish_reason: {choice.get('finish_reason')})")
     return result

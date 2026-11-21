@@ -1,0 +1,4 @@
+{"ts": 1795276808.685445, "model": "nvidia/nemotron-3.5-super-vl:free", "tokens_in": 129, "tokens_out": 120, "cost_usd": 0.0, "latency_s": 1.741}
+{"ts": 1795276913.9691172, "model": "nvidia/nemotron-3.5-lightning:free", "tokens_in": 129, "tokens_out": 120, "cost_usd": 0.0, "latency_s": 1.299}
+{"ts": 1795276931.2479043, "model": "liquid/lfm-3-1.7b:free", "tokens_in": 116, "tokens_out": 120, "cost_usd": 0.0, "latency_s": 1.376}
+{"ts": 1795276983.4918277, "model": "nvidia/nemotron-3.5-lightning:free", "tokens_in": 129, "tokens_out": 1000, "cost_usd": 0.0, "latency_s": 5.642}
