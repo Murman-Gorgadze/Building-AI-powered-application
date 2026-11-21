@@ -31,6 +31,10 @@ Input: decision JSON with `event_id`, `action`, `score`, `reserve_seats`, `reaso
 
 Python 3.11+, standard library only (pytest for tests). Key from `OPENROUTER_API_KEY`, model from `HW1_MODEL` (default `google/gemini-2.5-flash`). Every file stays inside `hw1/Tornike111/`.
 
+## Relation to the team code
+
+The team slice `src/reason.py` (committed by Murman on 18 Nov) solves the same operator-reason problem. My folder does not import it or any team code. Mine differs: it reads a decision JSON file and runs on its own (standard library only), returns `null` with zero model calls for WATCH/SKIP, rejects a second sentence and not only a line break, gives `error: ...` and exit 2 for a bad or missing file, logs a model call even when the reply is empty, and sets `max_tokens` to 1000 because the live runs showed 120 is too small for reasoning models.
+
 ## Out of scope
 
 Calling `decide()`, any UI, retries or a fallback model, catching invented facts that contain no number.

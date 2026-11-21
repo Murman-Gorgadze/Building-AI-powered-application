@@ -1,19 +1,19 @@
 # Pattern Journal · Tornike111 · Weeks 1 to 4
 
-*One entry per week: the pattern, one place I saw or used it, one thing I would do differently. Written on 18 November 2026; the examples come from my HW1 feature.*
+*One entry per week: the pattern, one place I saw or used it, one thing I would do differently. I wrote these late, after the weeks themselves, so every example comes from my HW1 work. First version 18 Nov 2026; each entry below is dated with the day it was last updated.*
 
-## Week 1 · Context as Budget
+## Week 1 · Context as Budget · updated 21 Nov 2026
 
-**Where I used it:** in HW1 I gave the agent only three things: the HW1 brief, our team repo, and the example folder. **What I noticed:** the second draft matched the required format because of the example; the right context did more than a longer prompt would have. **Do differently:** give the example at the start, not after the first draft.
+**Where I used it:** the live runs measured my prompt at 116–129 tokens in, close to my estimate of 100, so the napkin math held. The surprise was the output side: reasoning models spent all 120, then all 1000, output tokens "thinking" and never wrote the sentence. **What I noticed:** thinking tokens are part of the budget and are billed as output; my worst case went from $0.21 to $3.81 a month. **Do differently:** measure with a live call on day one instead of estimating.
 
-## Week 2 · Spec Before Code
+## Week 2 · Spec Before Code · updated 21 Nov 2026
 
-**Where I used it:** each acceptance criterion in my `spec.md` became one test, including two error cases. **What I noticed:** the rule "logs stay inside my folder" was not in the spec, and the first version broke it. **Do differently:** write the error cases and the folder rule into the spec before anything is built.
+**Where I used it:** each acceptance criterion in `spec.md` has a test. **What I noticed:** the spec promised "one sentence" and exit codes 0 and 2, but nothing checked them until the review on 21 Nov; a rule without a test is only a wish. **Do differently:** write the test name next to each criterion when I write the spec.
 
-## Week 3 · Uncertainty-Aware UX
+## Week 3 · Uncertainty-Aware UX · updated 21 Nov 2026
 
-**Where I used it:** the fallback in `explain.py`. When the model's sentence cannot be trusted, or the call fails, the operator gets the plain list of reasons instead of a guess. **What I noticed:** a safe default is better than hiding that the model failed. **Do differently:** show the operator which one they got (`source: model` or `fallback`) in the UI too, not only in the JSON.
+**Where I used it:** the fallback in `explain.py`. On 21 Nov a real `429 Too Many Requests` and an empty reasoning-model reply both ended in the plain template with exit 0, so the operator still got a true message. **What I noticed:** the fallback only stays safe if the failure is also logged; at first the empty reply crashed before logging. **Do differently:** show the operator whether the line came from the model or the template, not only in the JSON.
 
-## Week 4 · Grounded Generation
+## Week 4 · Grounded Generation · updated 21 Nov 2026
 
-**Where I used it:** the model may only restate the listed reasons. Golden question 2 has the model invent a 40 GEL price, and the check rejects the sentence. **What I noticed:** the check only looks at numbers, so "this match always sells out" still passes. **Do differently:** add a check per claim, or a judge model, so invented words are caught too.
+**Where I used it:** the model may only restate the listed reasons, and any invented number sends the operator to the template (golden question 2). **What I noticed:** the check asks only whether each number appears somewhere, so swapped numbers ("78% sold, score 85") pass. That is golden question 4, a documented fail. **Do differently:** tie each number to the words around it, or add a judge model.
