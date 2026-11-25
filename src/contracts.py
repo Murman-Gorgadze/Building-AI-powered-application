@@ -35,7 +35,7 @@ EventId = Annotated[str, Field(pattern=r"^[a-z0-9][a-z0-9-]{0,31}$",
 
 
 class Contract(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict()   # RED RUN: extra="forbid" removed on purpose; this PR must not merge
 
 
 # ---------------------------------------------------------------- check_reserve (owner: Murman-Gorgadze, HW2)
