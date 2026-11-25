@@ -1,0 +1,58 @@
+# HW2 tool golden set · rank_loyal_fans · owner: Tornike111
+# tests/test_tool_golden.py runs every case through call_tool() in CI: no model, no key.
+# Data: data/attendance.json (made-up fan ids). Expected rankings were computed by rank_fans()
+# and checked by hand: loyal = 3+ visits to the category in the 90 days up to as_of
+# (2026-08-22 .. 2026-11-20 for as_of 2026-11-20).
+tool_owner: Tornike111
+cases:
+  - id: n1
+    type: normal
+    why: the everyday case; an operator gets the loyal football fans, most visits first, ties broken by fan id
+    tool: rank_loyal_fans
+    caller: op-1
+    arguments: {category: football, as_of: "2026-11-20"}
+    expect: ok
+    result_has:
+      total_loyal: 5
+      fans:
+        - {fan_id: fan-0001, visits: 6}
+        - {fan_id: fan-0002, visits: 5}
+        - {fan_id: fan-0003, visits: 5}
+        - {fan_id: fan-0004, visits: 4}
+        - {fan_id: fan-0005, visits: 3}
+  - id: n2
+    type: normal
+    why: a different operator and category; limit cuts the list but total_loyal still counts everyone (fan-0009's visit on the window's first day counts)
+    tool: rank_loyal_fans
+    caller: op-2
+    arguments: {category: concert, as_of: "2026-11-20", limit: 2}
+    expect: ok
+    result_has:
+      total_loyal: 3
+      fans:
+        - {fan_id: fan-0008, visits: 5}
+        - {fan_id: fan-0007, visits: 4}
+  - id: n3
+    type: normal
+    why: nobody is loyal to theatre; the tool refuses and tells the model not to lower the bar or invent fans
+    tool: rank_loyal_fans
+    caller: op-1
+    arguments: {category: theatre, as_of: "2026-11-20"}
+    expect: refused
+    error_has: [no loyal theatre fans, do not lower the bar]
+  - id: b1
+    type: bad-input
+    why: limit is bounded 1..50; a request to dump 500 fans never reaches the data
+    tool: rank_loyal_fans
+    caller: op-1
+    arguments: {category: football, as_of: "2026-11-20", limit: 500}
+    expect: refused
+    error_has: [invalid arguments, limit, less than or equal to 50]
+  - id: a1
+    type: adversarial
+    why: an anonymous caller (or a model talking to one) asks for fan data; the tool is operator-only, so it is never offered and never runs
+    tool: rank_loyal_fans
+    caller: null
+    arguments: {category: football, as_of: "2026-11-20"}
+    expect: refused
+    error_has: [no tool named 'rank_loyal_fans']

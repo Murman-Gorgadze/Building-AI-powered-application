@@ -1,0 +1,11 @@
+# 0005 · `rank_loyal_fans` is operator-only, and the loyalty rule is not an argument
+
+**Date:** 25 November 2026 · **Proposed by:** Tornike Varshalomidze · **Agreed by:** Murman Gorgadze, by approving the pull request that adds this file
+
+**Context.** `rank_loyal_fans` wraps `rank_fans()` and returns which fans attended a category of event most often. That is the first tool in FanReserve that returns data about fans rather than about events. `check_reserve` reads no fan data and is offered to everyone; copying that choice here would let any anonymous chat visitor, or a model talking to one, list fan ids and their visit counts. The loyalty rule (3 visits in 90 days, `docs/spec.md`) also decides who gets reserved seats, so whoever can change it can change who is "loyal".
+
+**Decision.** The tool is registered with `operator_only=True` and `needs_caller=True`: `tools_for()` never offers it to an anonymous caller, the caller comes from the app (function calling) or `FANRESERVE_OPERATOR` (MCP), never from the arguments, and the tool itself refuses a missing caller as a backstop. The window and minimum are constants in `src/reserve.py` (`LOYAL_WINDOW_DAYS`, `LOYAL_MIN_VISITS`), not arguments, so `extra="forbid"` refuses `min_visits` or `window_days` from the model.
+
+**Alternatives.** *Offer it to everyone, but only return counts, not ids:* still tells an outsider how many regulars an event has, and operators need the ids. *Take `operator_id` as an argument and check it:* the model would choose who it is, the exact thing the contract forbids. *Make window and minimum bounded arguments:* useful for "what if" questions, but it lets a model quietly lower the bar to 1 visit; an operator can change the constants in a reviewed pull request instead. *Use today's clock instead of `as_of`:* the golden cases would break as the calendar moves past the fixed data.
+
+**Consequences.** Anonymous callers cannot see the tool at all through function calling; through MCP it is listed but refused when the server was started without an operator. Any signed-in operator can rank any category, which is fine for a two-operator prototype; per-operator permissions are future work. Changing who counts as loyal now needs a code change and a review, which is the point.

@@ -10,13 +10,18 @@ a fan. Placing a hold will be a separate tool that waits for the operator's yes 
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass
+from datetime import date
+from pathlib import Path
 from typing import Callable, Literal
 
 from pydantic import BaseModel, ValidationError
 
-from .contracts import CheckReserve, Contract
-from .reserve import Event, decide
+from .contracts import CheckReserve, Contract, RankLoyalFans
+from .reserve import LOYAL_MIN_VISITS, LOYAL_WINDOW_DAYS, Event, decide, rank_fans
+
+ATTENDANCE_PATH = Path(__file__).resolve().parents[1] / "data" / "attendance.json"
 
 
 class ToolFailure(Exception):
@@ -64,6 +69,47 @@ def check_reserve(args: CheckReserve) -> ReserveResult:
                          reserve_seats=d.reserve_seats, reasons=d.reasons)
 
 
+# ---------------------------------------------------------------- rank_loyal_fans (owner: Tornike111)
+
+class LoyalFan(BaseModel):
+    fan_id: str                # pseudonymous, e.g. "fan-0001"; never a name
+    visits: int                # visits to this category inside the window
+
+
+class LoyalFansResult(BaseModel):
+    category: str
+    as_of: date
+    window_days: int           # the fixed rule, echoed so the operator sees what "loyal" meant
+    min_visits: int
+    total_loyal: int           # how many fans qualify, before `limit` cut the list
+    fans: list[LoyalFan]       # most visits first, ties by fan id
+
+
+def load_attendance() -> dict[str, list[tuple[str, date]]]:
+    """data/attendance.json as rank_fans() reads it. Any problem becomes one message for the
+    model with no path or file name in it."""
+    try:
+        raw = json.loads(ATTENDANCE_PATH.read_text(encoding="utf-8"))["fans"]
+        return {fan: [(cat, date.fromisoformat(day)) for cat, day in visits] for fan, visits in raw.items()}
+    except (OSError, KeyError, TypeError, ValueError) as err:
+        raise ToolFailure("Attendance data is not available right now, so loyal fans cannot be ranked. "
+                          "Tell the operator; do not guess fan ids.") from err
+
+
+def rank_loyal_fans(args: RankLoyalFans, caller: str | None = None) -> LoyalFansResult:
+    if not caller:   # backstop: tools_for() never offers this tool to an anonymous caller
+        raise ToolFailure("rank_loyal_fans is for signed-in operators only. Tell the user to sign in "
+                          "as an operator; do not call it again until they have.")
+    ranked = rank_fans(load_attendance(), args.category, args.as_of)
+    if not ranked:
+        raise ToolFailure(f"no loyal {args.category} fans: nobody has {LOYAL_MIN_VISITS} or more {args.category} "
+                          f"visits in the {LOYAL_WINDOW_DAYS} days up to {args.as_of}. Tell the operator there is "
+                          "no loyal-fan list for this category; do not lower the bar or invent fan ids.")
+    return LoyalFansResult(category=args.category, as_of=args.as_of, window_days=LOYAL_WINDOW_DAYS,
+                           min_visits=LOYAL_MIN_VISITS, total_loyal=len(ranked),
+                           fans=[LoyalFan(fan_id=f, visits=n) for f, n in ranked[:args.limit]])
+
+
 # ---------------------------------------------------------------- the registry
 
 @dataclass(frozen=True)
@@ -83,7 +129,7 @@ class Tool:
 
 TOOLS = {t.name: t for t in [
     Tool("check_reserve", CheckReserve, check_reserve),
-    # Tornike111 (HW2): rank_loyal_fans, wrapping rank_fans(), operator_only=True. See docs/tool-contracts.md.
+    Tool("rank_loyal_fans", RankLoyalFans, rank_loyal_fans, operator_only=True, needs_caller=True),
 ]}
 
 

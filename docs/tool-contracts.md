@@ -63,11 +63,62 @@ Both doors check the same contract and send the same refusal text:
 
 ---
 
+## `rank_loyal_fans`
+
+**In one sentence, for the model:** Operators only. Which fans count as loyal for one category of event: at least 3 visits in the 90 days up to as_of, most visits first. Returns pseudonymous fan ids (fan-0001), never names. Reads only: it reserves nothing and contacts no one. Use it when the operator asks who would get reserved seats; the loyalty rule is fixed in code and cannot be changed by arguments.
+
+| | |
+|---|---|
+| **Effect** | reads: loads `data/attendance.json` and ranks it with `rank_fans()` in `src/reserve.py`; writes nothing but its own log line |
+| **Undo** | nothing to undo: no seat is reserved, no fan is contacted, no record changes |
+| **Idempotent?** | yes: the same arguments on the same data give the same result (`as_of` is an argument, not the clock) |
+| **Offered to** | signed-in operators only: `operator_only=True` on its `TOOLS` entry in `src/tools.py`, so `tools_for(None)` never lists it. It returns fan data, so an anonymous caller must not even see it (`docs/decisions/0005`) |
+| **Identity from** | the app, never the model: `needs_caller=True`, so `call_tool()` passes the caller in; the MCP door takes it from `signed_in_operator()` (`FANRESERVE_OPERATOR`, set by whoever starts the server). The contract has no caller or fan field and `extra="forbid"` refuses one. The tool refuses a missing caller itself as a backstop |
+| **Touches** | `data/attendance.json` (read only), the constants `LOYAL_WINDOW_DAYS` and `LOYAL_MIN_VISITS` in `src/reserve.py`. No database, no network |
+| **Must never** | show fan data to an anonymous caller; let the model change who counts as loyal (no `min_visits` or `window_days` argument); return names or any field beyond the pseudonymous id and a visit count |
+
+**Inputs.** `extra="forbid"`; every string has a fixed set; every number and date has bounds.
+
+| Argument | Type | Constraint | Description the model reads |
+|---|---|---|---|
+| `category` | string | one of `football`, `basketball`, `rugby`, `concert`, `theatre`, `other`; required | Kind of event |
+| `as_of` | date | `YYYY-MM-DD`, 2026-01-01 to 2026-12-31; required | Count visits in the 90 days up to and including this date, YYYY-MM-DD, in 2026 |
+| `limit` | integer | 1 to 50; default 10 | Most fans to return, 1 to 50 |
+
+**Result** (`LoyalFansResult`): `category`, `as_of`, `window_days` (90) and `min_visits` (3), echoed so the operator sees the rule; `total_loyal` (how many qualify before `limit`); `fans` (list of `{fan_id, visits}`, most visits first, ties by id).
+
+**Expected failures.** The model reads these exact strings.
+
+| When | Message the model reads (what happened, what to do next) |
+|---|---|
+| an argument breaks the contract, or one it does not have (`operator_id`, `min_visits`) | `invalid arguments: <field>: <what is wrong>. Fix or remove only those arguments and call rank_loyal_fans again, using the operator's own numbers; if the operator did not give a value, ask for it.` |
+| an anonymous caller (function calling) | `no tool named 'rank_loyal_fans' is available to you. Tools you can call: check_reserve.` |
+| nobody signed in (MCP) | `Not signed in: this server was started without FANRESERVE_OPERATOR.` |
+| nobody qualifies | `no loyal <category> fans: nobody has 3 or more <category> visits in the 90 days up to <as_of>. Tell the operator there is no loyal-fan list for this category; do not lower the bar or invent fan ids.` |
+| the data file is missing or broken | `Attendance data is not available right now, so loyal fans cannot be ranked. Tell the operator; do not guess fan ids.` (no path or file name) |
+
+**Tests and golden cases**
+
+| Case | Expect | Where |
+|---|---|---|
+| football, as of 2026-11-20 | 5 loyal fans, `fan-0001` (6) first, `fan-0002`/`fan-0003` tie broken by id | `evals/tools/Tornike111.yaml` n1 · `tests/test_rank_loyal_fans.py` |
+| concert, `limit: 2`, another operator | 2 fans returned, `total_loyal: 3`; a visit on the window's first day counts | yaml n2 |
+| theatre | refused: no loyal fans, do not lower the bar | yaml n3 |
+| `limit: 500` | refused before the data is read | yaml b1 |
+| adversarial: an anonymous caller asks for fan data | not offered, never runs | yaml a1 · `test_anonymous_caller_never_reaches_the_data` |
+| adversarial: `operator_id`, `fan_id`, `min_visits: 1` or `window_days: 3650` in the arguments | refused, through both doors | `test_contract_refuses_identity_and_rule_changes` · `test_mcp_refuses_an_operator_id_in_the_arguments` |
+
+**Log line.** The same `logs/tools.jsonl` line as `check_reserve`: the caller as a 12-character hash, and no result, so no fan id is written to the log. Known gap, shared with `check_reserve`: calls through the MCP door are not logged yet.
+
+**Known limits.** The MCP door lists the tool to every client and refuses it at call time when nobody is signed in; the function-calling door hides it completely. `as_of` must be in 2026, the year the attendance data covers. Any signed-in operator may rank any category; per-operator permissions are not modelled yet.
+
+---
+
 ## HW2 owners
 
 No two members wrap the same function (Lab 5 studio).
 
 | Member | Function wrapped | Tool | Status |
 |---|---|---|---|
-| Murman-Gorgadze | `decide()` in `src/reserve.py` | `check_reserve` | this pull request |
-| Tornike111 | `rank_fans()` in `src/reserve.py` | `rank_loyal_fans` (operator-only) | proposed; Tornike confirms in his review |
+| Murman-Gorgadze | `decide()` in `src/reserve.py` | `check_reserve` | merged, PR #9 |
+| Tornike111 | `rank_fans()` in `src/reserve.py` | `rank_loyal_fans` (operator-only) | confirmed; in Tornike's product pull request |
