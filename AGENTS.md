@@ -5,6 +5,8 @@ Decides which events hold seats back for loyal fans, how many and why, for ticke
 install:  pip install -r requirements.txt
 run:      python -m src.reason --tier 1 --day 2026-10-23 --capacity 50000 --sold 85 --days-out 21
 test:     pytest            (product, tests/) · pytest hw1   (homework folders)
+tools:    python -m src.act "<question>" [--operator op-1]   (function calling, needs a key)
+mcp:      FANRESERVE_OPERATOR=op-1 python -m src.mcp_server   (MCP over stdio, no key)
 
 ## Conventions
 - Model: `FANRESERVE_MODEL`, default `google/gemini-3.8-flash`, via OpenRouter.

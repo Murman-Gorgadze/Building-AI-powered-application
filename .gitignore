@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 .pytest_cache/
 # logs/usage.jsonl IS committed: it is the evidence for the token budget
+logs/tools.jsonl
