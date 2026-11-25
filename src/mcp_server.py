@@ -24,7 +24,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
 from . import tools
-from .contracts import (AsOf, Capacity, Category, CheckReserve, DaysOut, EventDay, EventId, IsTour, Limit,
+from .contracts import (AsOf, Capacity, Category, CheckDay, CheckReserve, DaysOut, EventDay, EventId, IsTour, Limit,
                         RankLoyalFans, SoldPct, Tier)
 
 class FanReserveServer(MCPServer):
@@ -66,6 +66,11 @@ def check_reserve(tier: Tier, day: EventDay, capacity: Capacity, sold_pct: SoldP
     return _run(tools.check_reserve, CheckReserve(category=category, tier=tier, day=day, capacity=capacity,
                                                   sold_pct=sold_pct, days_out=days_out, is_tour=is_tour,
                                                   event_id=event_id))
+
+
+@mcp.tool(annotations=READS, description=" ".join(CheckDay.__doc__.split()))
+def check_day(day: EventDay) -> tools.DayResult:
+    return _run(tools.check_day, CheckDay(day=day))
 
 
 @mcp.tool(annotations=READS, description=" ".join(RankLoyalFans.__doc__.split()))

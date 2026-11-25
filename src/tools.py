@@ -12,14 +12,14 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Callable, Literal
 
 from pydantic import BaseModel, ValidationError
 
-from .contracts import CheckReserve, Contract, RankLoyalFans
-from .reserve import LOYAL_MIN_VISITS, LOYAL_WINDOW_DAYS, Event, decide, rank_fans
+from .contracts import CheckDay, CheckReserve, Contract, RankLoyalFans
+from .reserve import HOLIDAYS_2026, LOYAL_MIN_VISITS, LOYAL_WINDOW_DAYS, Event, day_points, decide, rank_fans
 
 ATTENDANCE_PATH = Path(__file__).resolve().parents[1] / "data" / "attendance.json"
 
@@ -110,6 +110,24 @@ def rank_loyal_fans(args: RankLoyalFans, caller: str | None = None) -> LoyalFans
                            fans=[LoyalFan(fan_id=f, visits=n) for f, n in ranked[:args.limit]])
 
 
+# ---------------------------------------------------------------- check_day (team tool, Lab 5)
+
+class DayResult(BaseModel):
+    day: date
+    weekday: str               # "Friday"
+    is_holiday: bool           # a Georgian public holiday in HOLIDAYS_2026
+    is_holiday_eve: bool       # the day before one (the rules count it too)
+    day_points: int            # what the date alone adds to demand_score(), e.g. 18 for a Friday
+    reasons: list[str]         # each with its points; empty when the date adds nothing
+
+
+def check_day(args: CheckDay) -> DayResult:
+    points, reasons = day_points(args.day)
+    return DayResult(day=args.day, weekday=f"{args.day:%A}", is_holiday=args.day in HOLIDAYS_2026,
+                     is_holiday_eve=(args.day + timedelta(days=1)) in HOLIDAYS_2026,
+                     day_points=points, reasons=reasons)
+
+
 # ---------------------------------------------------------------- the registry
 
 @dataclass(frozen=True)
@@ -129,6 +147,7 @@ class Tool:
 
 TOOLS = {t.name: t for t in [
     Tool("check_reserve", CheckReserve, check_reserve),
+    Tool("check_day", CheckDay, check_day),
     Tool("rank_loyal_fans", RankLoyalFans, rank_loyal_fans, operator_only=True, needs_caller=True),
 ]}
 

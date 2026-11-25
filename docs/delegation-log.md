@@ -40,3 +40,14 @@ One entry per delegation that mattered. HW1's own log is `hw1/Murman-Gorgadze/de
 - **Caught by:** mutation runs before committing: `operator_only=False` fails golden case `Tornike111:a1` and 3 other tests; dropping `extra="forbid"` fails 8 tests in `tests/test_rank_loyal_fans.py`.
 - **Decision:** kept, pending review by Murman on the pull request.
 - **Cost:** one session; no paid model calls (tests and golden cases use no key).
+
+### Entry 4 · Lab 5 team tool `check_day`
+- **Task:** catch up Lab 5: a team tool different from both HW2 tools, its contract, tests, MCP registration, golden cases, the two AGENTS.md lines, the Week 5 journal entry.
+- **Delegated to:** Claude Code (Opus 5.5), rung 3. Context: `Lab-5/README.md`, `docs/tool-contracts.md`, this repo. Date: 25 November 2026. I chose the capability ("is this date busy?"); the agent chose the design.
+- **Plan check:** the agent asked before every push, pull request and setup change.
+- **Came back wrong / found:**
+  1. A copy of the weekday and holiday rules inside the tool would have been able to drift from `decide()`. Instead the rules moved into `day_points()` in `src/reserve.py`, used by both; `test_agrees_with_the_scoring_rules` checks they match.
+  2. Two tests listed the exact tools offered (`test_act.py`); they were updated to include `check_day`, not loosened.
+- **Caught by:** `pytest` (141 product tests), reading the diff.
+- **Decision:** kept, pending review by Tornike on the pull request.
+- **Cost:** one session; no paid model calls.

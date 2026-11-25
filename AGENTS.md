@@ -31,3 +31,5 @@ mcp:      FANRESERVE_OPERATOR=op-1 python -m src.mcp_server   (MCP over stdio, n
 - Delete, skip, or weaken a test to make it pass
 - Let a model change a decision, a seat count or a hold: those come from code and the operator
 - Edit someone else's hw1/ or hw2/ folder
+- Put a user, operator, fan or account id in a tool's arguments: identity comes from the app or the server
+- Add a tool that deletes, sends or places a hold without asking first

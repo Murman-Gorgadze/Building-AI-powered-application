@@ -88,3 +88,12 @@ def test_operator_comes_from_the_server_not_the_model(monkeypatch):
     monkeypatch.setenv("FANRESERVE_OPERATOR", "op-1")
     assert signed_in_operator() == "op-1"
     assert not set(run(listed())["check_reserve"].input_schema["properties"]) & {"operator", "operator_id", "caller"}
+
+
+def test_check_day_through_the_mcp_door():
+    """Lab 5: the team tool answers through the MCP client, read-only, with the same refusals."""
+    assert run(listed())["check_day"].annotations.read_only_hint is True
+    r = run(call("check_day", {"day": "2026-05-12"}))
+    assert not r.is_error and r.structured_content["is_holiday"] is True and r.structured_content["day_points"] == 12
+    r = run(call("check_day", {"day": "2026-11-30", "holidays": ["2026-11-30"]}))
+    assert r.is_error and "holidays: Extra inputs are not permitted" in r.content[0].text
