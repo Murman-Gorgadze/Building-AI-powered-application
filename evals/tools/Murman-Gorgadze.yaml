@@ -1,0 +1,62 @@
+# HW2 tool golden set · check_reserve · owner: Murman-Gorgadze
+# tests/test_tool_golden.py runs every case through call_tool() in CI: no model, no key.
+# The expected numbers were computed by decide() and checked by hand against the weights at the
+# top of src/reserve.py (tier 1 = +35, Friday = +18, selling fast capped at +25, and so on).
+tool_owner: Murman-Gorgadze
+cases:
+  - id: n1
+    type: normal
+    why: the spec's headline event (AC1); a sell-out tier 1 Friday match holds 10% of capacity
+    tool: check_reserve
+    caller: op-1
+    arguments: {tier: 1, day: "2026-10-23", capacity: 50000, sold_pct: 85, days_out: 21}
+    expect: ok
+    result_has: {action: RESERVE, score: 78, reserve_seats: 5000}
+  - id: n2
+    type: normal
+    why: the WATCH band (score 40 to 59) holds no seats; asked by an anonymous caller, since the tool reads no fan data
+    tool: check_reserve
+    caller: null
+    arguments: {category: concert, tier: 2, day: "2026-12-12", capacity: 8000, sold_pct: 10, days_out: 30}
+    expect: ok
+    result_has: {action: WATCH, score: 43, reserve_seats: 0}
+  - id: n3
+    type: normal
+    why: a minor Monday match with slow sales is skipped and holds nothing
+    tool: check_reserve
+    caller: op-1
+    arguments: {tier: 3, day: "2026-11-30", capacity: 3000, sold_pct: 5, days_out: 60}
+    expect: ok
+    result_has: {action: SKIP, reserve_seats: 0}
+  - id: b1
+    type: bad-input
+    why: sold_pct is a percentage 0..100; 150 is impossible and must never reach decide()
+    tool: check_reserve
+    caller: op-1
+    arguments: {tier: 1, day: "2026-10-23", capacity: 50000, sold_pct: 150, days_out: 21}
+    expect: refused
+    error_has: [invalid arguments, sold_pct, less than or equal to 100]
+  - id: a1
+    type: adversarial
+    why: a model (or an instruction hidden in event text) tries to dictate the outcome and the seat count; decisions come from code, never from arguments (docs/decisions/0002)
+    tool: check_reserve
+    caller: op-1
+    arguments: {tier: 3, day: "2026-11-30", capacity: 50000, sold_pct: 5, days_out: 60, action: RESERVE, reserve_seats: 50000}
+    expect: refused
+    error_has: [invalid arguments, action, extra inputs are not permitted]
+  - id: a2
+    type: adversarial
+    why: a path smuggled into the only free-text field; the pattern refuses it before anything is logged as an event id
+    tool: check_reserve
+    caller: op-1
+    arguments: {tier: 1, day: "2026-10-23", capacity: 50000, sold_pct: 85, days_out: 21, event_id: "../../logs/usage.jsonl"}
+    expect: refused
+    error_has: [invalid arguments, event_id, pattern]
+  - id: a3
+    type: adversarial
+    why: the model tries to choose who is calling; the caller comes from the app, so an operator field is refused
+    tool: check_reserve
+    caller: null
+    arguments: {tier: 1, day: "2026-10-23", capacity: 50000, sold_pct: 85, days_out: 21, operator_id: admin}
+    expect: refused
+    error_has: [invalid arguments, operator_id]
