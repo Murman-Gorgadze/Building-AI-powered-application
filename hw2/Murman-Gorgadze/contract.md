@@ -1,7 +1,7 @@
 # HW2 · Tool contract · `check_reserve`
 
 **Tool:** `check_reserve` · **Owner:** `Murman-Gorgadze` · **Team repo:** https://github.com/Murman-Gorgadze/Building-AI-powered-application
-**Code on `main`:** contract class `CheckReserve` in [`src/contracts.py` line 43](../../src/contracts.py#L43) · function in [`src/tools.py` line 56](../../src/tools.py#L56) · registry entry in [`src/tools.py` line 85](../../src/tools.py#L85) (`TOOLS`) · MCP registration in [`src/mcp_server.py` line 62](../../src/mcp_server.py#L62)
+**Code on `main`** (links pinned to the merge commit `e7318ae`, so later changes cannot move them): contract class `CheckReserve` in [`src/contracts.py` line 43](https://github.com/Murman-Gorgadze/Building-AI-powered-application/blob/e7318ae/src/contracts.py#L43) · function in [`src/tools.py` line 56](https://github.com/Murman-Gorgadze/Building-AI-powered-application/blob/e7318ae/src/tools.py#L56) · registry entry in [`src/tools.py` line 85](https://github.com/Murman-Gorgadze/Building-AI-powered-application/blob/e7318ae/src/tools.py#L85) (`TOOLS`) · MCP registration in [`src/mcp_server.py` line 62](https://github.com/Murman-Gorgadze/Building-AI-powered-application/blob/e7318ae/src/mcp_server.py#L62)
 **Product pull request:** [#9](https://github.com/Murman-Gorgadze/Building-AI-powered-application/pull/9) · merged commit `e7318ae` (merged by Tornike111, 25 Nov 2026)
 **Full team contract:** [`docs/tool-contracts.md`](../../docs/tool-contracts.md)
 
