@@ -24,7 +24,8 @@ from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
 from . import tools
-from .contracts import Capacity, Category, CheckReserve, DaysOut, EventDay, EventId, IsTour, SoldPct, Tier
+from .contracts import (AsOf, Capacity, Category, CheckReserve, DaysOut, EventDay, EventId, IsTour, Limit,
+                        RankLoyalFans, SoldPct, Tier)
 
 class FanReserveServer(MCPServer):
     async def call_tool(self, name, arguments, context=None):
@@ -65,6 +66,12 @@ def check_reserve(tier: Tier, day: EventDay, capacity: Capacity, sold_pct: SoldP
     return _run(tools.check_reserve, CheckReserve(category=category, tier=tier, day=day, capacity=capacity,
                                                   sold_pct=sold_pct, days_out=days_out, is_tour=is_tour,
                                                   event_id=event_id))
+
+
+@mcp.tool(annotations=READS, description=" ".join(RankLoyalFans.__doc__.split()))
+def rank_loyal_fans(category: Category, as_of: AsOf, limit: Limit = 10) -> tools.LoyalFansResult:
+    caller = signed_in_operator()   # from whoever launched the server; refuses if nobody is signed in
+    return _run(tools.rank_loyal_fans, RankLoyalFans(category=category, as_of=as_of, limit=limit), caller=caller)
 
 
 if __name__ == "__main__":

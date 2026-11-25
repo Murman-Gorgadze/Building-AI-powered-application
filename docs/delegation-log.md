@@ -29,3 +29,14 @@ One entry per delegation that mattered. HW1's own log is `hw1/Murman-Gorgadze/de
 - **Caught by:** calling the MCP server by hand; a mutation run (plain `MCPServer` → 5 failures); `git status` before committing; Tornike running `pytest` on his own machine.
 - **Decision:** kept, pending review by Tornike on the pull request.
 - **Cost:** two sessions; no paid model calls (the tests and the MCP run use no key).
+
+### Entry 3 · HW2 `rank_loyal_fans` (Tornike111)
+- **Task:** HW2 product work: wrap `rank_fans()` as the operator-only tool `rank_loyal_fans` on Murman's frame (contract, registry entry, MCP registration), made-up `data/attendance.json`, 5 golden cases in `evals/tools/Tornike111.yaml`, `tests/test_rank_loyal_fans.py`, `docs/tool-contracts.md` section, `docs/decisions/0005`.
+- **Delegated to:** Claude Code (Opus 5.5), rung 3. Context: `Lab-5/HOMEWORK.md`, `Lab-5/templates/`, `Lab-8/HOMEWORK.md`, PR #9, this repo. Date: 25 November 2026.
+- **Plan check:** the agent laid out the plan and the file list before writing; I create the branches, commits and pull requests myself, the agent only writes code.
+- **Came back wrong / found:**
+  1. The MCP door lists every tool to every client, so it cannot hide an operator-only tool the way `tools_for(None)` does. Kept Murman's "same tools through both doors" test; the MCP tool refuses at call time when the server has no `FANRESERVE_OPERATOR`. Written down as a known limit in `docs/tool-contracts.md`.
+  2. `rank_fans()` had the loyalty rule as default arguments (90, 3). Moved to constants `LOYAL_WINDOW_DAYS` and `LOYAL_MIN_VISITS` at the top of `src/reserve.py` (AGENTS.md: no magic numbers), and left them out of the contract so the model cannot lower the bar (`docs/decisions/0005`).
+- **Caught by:** mutation runs before committing: `operator_only=False` fails golden case `Tornike111:a1` and 3 other tests; dropping `extra="forbid"` fails 8 tests in `tests/test_rank_loyal_fans.py`.
+- **Decision:** kept, pending review by Murman on the pull request.
+- **Cost:** one session; no paid model calls (tests and golden cases use no key).

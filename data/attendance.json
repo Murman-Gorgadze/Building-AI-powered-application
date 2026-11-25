@@ -1,0 +1,25 @@
+{
+  "_about": "Made-up attendance for tests and golden cases. Fan ids are synthetic (fan-NNNN); no real names or personal data. Each visit is [category, YYYY-MM-DD], the shape rank_fans() in src/reserve.py reads. Designed around as_of 2026-11-20 (90-day window starts 2026-08-22).",
+  "fans": {
+    "fan-0001": [["football", "2026-08-29"], ["football", "2026-09-12"], ["football", "2026-09-26"], ["football", "2026-10-10"], ["football", "2026-10-24"], ["football", "2026-11-07"]],
+    "fan-0002": [["football", "2026-09-05"], ["football", "2026-09-19"], ["football", "2026-10-03"], ["football", "2026-10-17"], ["football", "2026-10-31"]],
+    "fan-0003": [["football", "2026-09-05"], ["football", "2026-09-26"], ["football", "2026-10-10"], ["football", "2026-10-24"], ["football", "2026-11-14"], ["concert", "2026-10-02"]],
+    "fan-0004": [["football", "2026-09-12"], ["football", "2026-10-03"], ["football", "2026-10-24"], ["football", "2026-11-14"]],
+    "fan-0005": [["football", "2026-09-19"], ["football", "2026-10-17"], ["football", "2026-11-07"]],
+    "fan-0006": [["football", "2026-05-02"], ["football", "2026-05-16"], ["football", "2026-06-06"], ["football", "2026-07-11"], ["football", "2026-09-12"], ["football", "2026-10-10"]],
+    "fan-0007": [["football", "2026-09-26"], ["football", "2026-10-31"], ["concert", "2026-09-04"], ["concert", "2026-09-25"], ["concert", "2026-10-16"], ["concert", "2026-11-06"]],
+    "fan-0008": [["concert", "2026-08-28"], ["concert", "2026-09-11"], ["concert", "2026-10-02"], ["concert", "2026-10-23"], ["concert", "2026-11-13"]],
+    "fan-0009": [["concert", "2026-08-22"], ["concert", "2026-09-25"], ["concert", "2026-10-30"]],
+    "fan-0010": [["concert", "2026-08-21"], ["concert", "2026-09-18"], ["concert", "2026-10-23"]],
+    "fan-0011": [["basketball", "2026-09-09"], ["basketball", "2026-10-07"], ["basketball", "2026-11-04"]],
+    "fan-0012": [["basketball", "2026-08-26"], ["basketball", "2026-09-23"], ["basketball", "2026-10-21"], ["basketball", "2026-11-18"]],
+    "fan-0013": [["basketball", "2026-10-14"], ["football", "2026-10-17"]],
+    "fan-0014": [["theatre", "2026-09-20"], ["theatre", "2026-10-25"]],
+    "fan-0015": [["theatre", "2026-11-01"], ["concert", "2026-11-13"]],
+    "fan-0016": [["football", "2026-10-10"], ["football", "2026-11-07"], ["football", "2026-11-28"]],
+    "fan-0017": [["concert", "2026-10-02"], ["basketball", "2026-10-07"], ["theatre", "2026-10-25"]],
+    "fan-0018": [["football", "2026-03-14"], ["football", "2026-04-04"], ["football", "2026-04-25"], ["football", "2026-05-16"]],
+    "fan-0019": [["basketball", "2026-09-23"], ["basketball", "2026-11-04"], ["concert", "2026-10-23"]],
+    "fan-0020": [["concert", "2026-10-16"]]
+  }
+}

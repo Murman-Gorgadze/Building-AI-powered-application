@@ -32,6 +32,9 @@ DaysOut = Annotated[int, Field(ge=0, le=365, description="Days from today until 
 IsTour = Annotated[bool, Field(description="True if the event is a stop on a touring artist's or team's tour")]
 EventId = Annotated[str, Field(pattern=r"^[a-z0-9][a-z0-9-]{0,31}$",
                                description="Short event label for the log, lowercase letters, digits and dashes")]
+AsOf = Annotated[date, Field(ge=date(2026, 1, 1), le=date(2026, 12, 31),
+                             description="Count visits in the 90 days up to and including this date, YYYY-MM-DD, in 2026")]
+Limit = Annotated[int, Field(ge=1, le=50, description="Most fans to return, 1 to 50")]
 
 
 class Contract(BaseModel):
@@ -53,3 +56,15 @@ class CheckReserve(Contract):
     days_out: DaysOut
     is_tour: IsTour = False
     event_id: EventId = "unnamed"
+
+
+# ---------------------------------------------------------------- rank_loyal_fans (owner: Tornike111, HW2)
+
+class RankLoyalFans(Contract):
+    """Operators only. Which fans count as loyal for one category of event: at least 3 visits in
+    the 90 days up to as_of, most visits first. Returns pseudonymous fan ids (fan-0001), never names.
+    Reads only: it reserves nothing and contacts no one. Use it when the operator asks who would
+    get reserved seats; the loyalty rule is fixed in code and cannot be changed by arguments."""
+    category: Category
+    as_of: AsOf
+    limit: Limit = 10

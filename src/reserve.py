@@ -24,6 +24,10 @@ RESERVE_FRACTION = {"high": 0.10, "normal": 0.05}  # share of capacity held back
 
 FAST_SALES_AT = 20  # velocity points at which the reason says "selling fast"
 
+# Who counts as a loyal fan (docs/spec.md, Users): this many visits to one category in this window.
+LOYAL_WINDOW_DAYS = 90
+LOYAL_MIN_VISITS = 3
+
 # Georgian public holidays 2026 (Labour Code, art. 30), including Orthodox Easter
 # (Good Friday 10 April to Easter Monday 13 April 2026). Written from the agent's
 # knowledge on 2026-11-18: CHECK against matsne.gov.ge before using in production.
@@ -101,7 +105,8 @@ def decide(e: Event, holidays=HOLIDAYS_2026) -> Decision:
 
 
 def rank_fans(attendance: dict[str, list[tuple[str, date]]], category: str,
-              today: date, window_days: int = 90, min_visits: int = 3) -> list[tuple[str, int]]:
+              today: date, window_days: int = LOYAL_WINDOW_DAYS,
+              min_visits: int = LOYAL_MIN_VISITS) -> list[tuple[str, int]]:
     """Fans who attended `category` events at least `min_visits` times in the window,
     most frequent first. Ties broken by name so output is deterministic."""
     cutoff = today - timedelta(days=window_days)
