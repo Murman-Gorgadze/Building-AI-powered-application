@@ -129,7 +129,7 @@ class Tool:
 
 TOOLS = {t.name: t for t in [
     Tool("check_reserve", CheckReserve, check_reserve),
-    Tool("rank_loyal_fans", RankLoyalFans, rank_loyal_fans, operator_only=True, needs_caller=True),
+    Tool("rank_loyal_fans", RankLoyalFans, rank_loyal_fans, operator_only=False, needs_caller=True),
 ]}
 
 
