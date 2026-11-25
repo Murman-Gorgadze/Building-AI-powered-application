@@ -5,3 +5,8 @@
 {"ts": "2026-11-20T08:26:46+00:00", "feature": "operator_reason", "model": "google/gemma-4-31b-it:free", "tokens_in": 0, "tokens_out": 0, "cost_usd": 0.0, "latency_ms": 2236, "ok": false}
 {"ts": "2026-11-20T08:27:18+00:00", "feature": "operator_reason", "model": "google/gemma-4-26b-a4b-it:free", "tokens_in": 0, "tokens_out": 0, "cost_usd": 0.0, "latency_ms": 2487, "ok": false}
 {"ts": "2026-11-20T08:27:45+00:00", "feature": "operator_reason", "model": "nvidia/nemotron-3.5-lightning:free", "tokens_in": 158, "tokens_out": 120, "cost_usd": 0.0, "latency_ms": 1642, "ok": true}
+{"ts": "2026-11-25T08:10:12+00:00", "feature": "act", "model": "nvidia/nemotron-3.5-lightning:free", "tokens_in": 1812, "tokens_out": 77, "cost_usd": 0.0, "latency_ms": 1940, "ok": true}
+{"ts": "2026-11-25T08:10:13+00:00", "feature": "act", "model": "nvidia/nemotron-3.5-lightning:free", "tokens_in": 1969, "tokens_out": 91, "cost_usd": 0.0, "latency_ms": 1701, "ok": true}
+{"ts": "2026-11-25T08:10:32+00:00", "feature": "act", "model": "nvidia/nemotron-3.5-lightning:free", "tokens_in": 1812, "tokens_out": 329, "cost_usd": 0.0, "latency_ms": 2699, "ok": true}
+{"ts": "2026-11-25T08:15:53+00:00", "feature": "act", "model": "nvidia/nemotron-3.5-lightning:free", "tokens_in": 1809, "tokens_out": 179, "cost_usd": 0.0, "latency_ms": 2208, "ok": true}
+{"ts": "2026-11-25T08:15:58+00:00", "feature": "act", "model": "nvidia/nemotron-3.5-lightning:free", "tokens_in": 2062, "tokens_out": 222, "cost_usd": 0.0, "latency_ms": 4665, "ok": true}

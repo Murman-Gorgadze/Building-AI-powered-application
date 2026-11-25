@@ -61,6 +61,20 @@ class Decision:
     reasons: list[str] = field(default_factory=list)
 
 
+def day_points(day: date, holidays=HOLIDAYS_2026) -> tuple[int, list[str]]:
+    """Points a date adds to demand on its own: the weekday, plus a holiday or the eve of one.
+    The one place these rules live; demand_score() and the check_day tool both use it."""
+    points, reasons = 0, []
+    w = WEEKDAY_POINTS[day.weekday()]
+    if w:
+        points += w
+        reasons.append(f"{day:%A} is a busy day (+{w})")
+    if day in holidays or (day + timedelta(days=1)) in holidays:
+        points += HOLIDAY_POINTS
+        reasons.append(f"holiday or holiday eve (+{HOLIDAY_POINTS})")
+    return points, reasons
+
+
 def demand_score(e: Event, holidays=HOLIDAYS_2026) -> tuple[int, list[str]]:
     if e.tier not in TIER_POINTS:
         raise ValueError(f"tier must be 1..3, got {e.tier}")
@@ -74,13 +88,9 @@ def demand_score(e: Event, holidays=HOLIDAYS_2026) -> tuple[int, list[str]]:
     score = TIER_POINTS[e.tier]
     if score:
         reasons.append(f"tier {e.tier} event (+{score})")
-    w = WEEKDAY_POINTS[e.day.weekday()]
-    if w:
-        score += w
-        reasons.append(f"{e.day:%A} is a busy day (+{w})")
-    if e.day in holidays or (e.day + timedelta(days=1)) in holidays:
-        score += HOLIDAY_POINTS
-        reasons.append(f"holiday or holiday eve (+{HOLIDAY_POINTS})")
+    d, day_reasons = day_points(e.day, holidays)
+    score += d
+    reasons += day_reasons
     if e.is_tour:
         score += TOUR_POINTS
         reasons.append(f"tour stop (+{TOUR_POINTS})")

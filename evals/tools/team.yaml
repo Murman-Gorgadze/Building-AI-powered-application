@@ -1,0 +1,46 @@
+# Lab 5 team tool golden set · check_day · owners: Murman-Gorgadze, Tornike111
+# tests/test_tool_golden.py runs every case through call_tool() in CI: no model, no key.
+# Expected points come from day_points() in src/reserve.py: Friday +18, Sunday +15,
+# a holiday or the eve of one +12 (HOLIDAYS_2026).
+tool_owner: team
+cases:
+  - id: n1
+    type: normal
+    why: an ordinary Friday is busy because of the weekday alone
+    tool: check_day
+    caller: null
+    arguments: {day: "2026-10-23"}
+    expect: ok
+    result_has: {weekday: Friday, is_holiday: false, day_points: 18}
+  - id: n2
+    type: normal
+    why: a public holiday on a quiet weekday still adds holiday points
+    tool: check_day
+    caller: op-1
+    arguments: {day: "2026-05-12"}
+    expect: ok
+    result_has: {weekday: Tuesday, is_holiday: true, is_holiday_eve: false, day_points: 12}
+  - id: n3
+    type: normal
+    why: Easter Sunday is a Sunday, a holiday and the eve of Easter Monday; the holiday points count once
+    tool: check_day
+    caller: null
+    arguments: {day: "2026-04-12"}
+    expect: ok
+    result_has: {is_holiday: true, is_holiday_eve: true, day_points: 27}
+  - id: b1
+    type: bad-input
+    why: the holiday list covers 2026 only; a 2027 date must be refused, not answered with zero points
+    tool: check_day
+    caller: op-1
+    arguments: {day: "2027-03-03"}
+    expect: refused
+    error_has: [invalid arguments, day, "2026-12-31"]
+  - id: a1
+    type: adversarial
+    why: a model (or text it read) tries to declare its own holiday to inflate a date's demand; holidays come from code only
+    tool: check_day
+    caller: null
+    arguments: {day: "2026-11-30", holidays: ["2026-11-30"]}
+    expect: refused
+    error_has: [invalid arguments, holidays, extra inputs are not permitted]

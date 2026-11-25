@@ -68,3 +68,14 @@ class RankLoyalFans(Contract):
     category: Category
     as_of: AsOf
     limit: Limit = 10
+
+
+# ---------------------------------------------------------------- check_day (team tool, Lab 5)
+
+class CheckDay(Contract):
+    """Is this date a busy day for events? Looks up the weekday and FanReserve's 2026 list of
+    Georgian public holidays, and returns how many demand points the date alone adds to an
+    event's score, with the reasons. Reads only and changes nothing. Use it when the operator
+    asks about a date, not an event; for a full decision call check_reserve."""
+    day: EventDay
+

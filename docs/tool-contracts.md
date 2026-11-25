@@ -114,9 +114,49 @@ Both doors check the same contract and send the same refusal text:
 
 ---
 
+## `check_day` (team tool, Lab 5)
+
+**In one sentence, for the model:** Is this date a busy day for events? Looks up the weekday and FanReserve's 2026 list of Georgian public holidays, and returns how many demand points the date alone adds to an event's score, with the reasons. Reads only and changes nothing. Use it when the operator asks about a date, not an event; for a full decision call check_reserve.
+
+| | |
+|---|---|
+| **Effect** | reads: `day_points()` in `src/reserve.py`, the same function `demand_score()` uses, so the tool and the decision can never disagree about a date |
+| **Undo** | nothing to undo |
+| **Idempotent?** | yes: same date, same answer (`tests/test_check_day.py::test_same_call_twice_gives_the_same_answer`) |
+| **Offered to** | everyone, anonymous callers included: `Tool("check_day", CheckDay, check_day)` leaves `operator_only=False`. It reads no fan data |
+| **Identity from** | not needed; the contract has no caller field and refuses one |
+| **Touches** | `WEEKDAY_POINTS`, `HOLIDAY_POINTS` and `HOLIDAYS_2026` in `src/reserve.py`. No file, no database, no network |
+| **Must never** | accept a holiday list or points from the model: holidays and weights come from code only |
+
+**Inputs.** `extra="forbid"`.
+
+| Argument | Type | Constraint | Description the model reads |
+|---|---|---|---|
+| `day` | date | `YYYY-MM-DD`, 2026-01-01 to 2026-12-31 | Event date, YYYY-MM-DD, in 2026 (the holiday list covers 2026 only) |
+
+**Result** (`DayResult`): `day`, `weekday` (e.g. `Friday`), `is_holiday`, `is_holiday_eve` (the rules count the day before a holiday too), `day_points` (integer), `reasons` (list of strings with their points; empty when the date adds nothing).
+
+**Expected failures.** Only contract refusals: `invalid arguments: day: <what is wrong>. Fix or remove only those arguments and call check_day again, ...` and the same message for an argument the contract does not have.
+
+**Tests and golden cases**
+
+| Case | Expect | Where |
+|---|---|---|
+| a valid call | Friday, 18 points | `evals/tools/team.yaml` n1 · `tests/test_check_day.py` |
+| invalid arguments (a 2027 date) | refused before the tool runs | yaml b1 · `test_invalid_dates_never_reach_the_tool` |
+| identity in the arguments | refused | `test_model_cannot_add_its_own_holidays_or_an_identity` |
+| adversarial: the model sends its own `holidays` list | refused, through both doors | yaml a1 · `tests/test_mcp.py::test_check_day_through_the_mcp_door` |
+| agrees with the scoring rules | same points as `demand_score()` for the date | `test_agrees_with_the_scoring_rules` |
+
+**Log line.** Same as `check_reserve`: one line per function-calling call in `logs/tools.jsonl`, with a hashed caller.
+
+**Known limit.** The holiday list is 2026 only, and it was written from the agent's knowledge: still to be checked against matsne.gov.ge (see the comment above `HOLIDAYS_2026`).
+
+---
+
 ## HW2 owners
 
-No two members wrap the same function (Lab 5 studio).
+No two members wrap the same function, and neither wraps the team's Lab 5 tool (`check_day`) (Lab 5 studio).
 
 | Member | Function wrapped | Tool | Status |
 |---|---|---|---|

@@ -26,7 +26,7 @@ def test_invalid_arguments_never_reach_the_tool(monkeypatch):
 def test_a_tool_that_does_not_exist_is_not_run():
     out = call_tool(call("place_hold", event_id="ev-1", seats=5000), tools_for("op-1"), "op-1")
     assert not out["ok"] and "no tool named 'place_hold'" in out["error"]
-    assert "Tools you can call: check_reserve" in out["error"]   # says what to do next
+    assert "Tools you can call: check_day, check_reserve, rank_loyal_fans." in out["error"]   # says what to do next
 
 
 def test_model_cannot_choose_the_caller():
@@ -51,7 +51,8 @@ def test_every_call_writes_one_log_line_with_a_hashed_caller(tool_log):
 def test_end_to_end_with_a_fake_model():
     def model(messages, schemas):
         if messages[-1]["role"] == "user":
-            assert [s["function"]["name"] for s in schemas] == ["check_reserve"]
+            # anonymous caller: the read-only tools, never the operator-only rank_loyal_fans
+            assert [s["function"]["name"] for s in schemas] == ["check_reserve", "check_day"]
             return {"content": None, "tool_calls": [call("check_reserve", **GOOD)]}
         result = json.loads(messages[-1]["content"])
         return {"content": f"{result['action']}: hold {result['reserve_seats']:,} seats.", "tool_calls": []}
