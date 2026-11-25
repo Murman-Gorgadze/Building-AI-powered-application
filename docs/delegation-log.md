@@ -25,6 +25,7 @@ One entry per delegation that mattered. HW1's own log is `hw1/Murman-Gorgadze/de
   2. Refusals said only what was wrong. They now say what to do next (Lab 7), and the unknown-tool message lists the tools the caller can use.
   3. A manual run wrote `logs/tools.jsonl` into the repo. Deleted, and the file is now in `.gitignore`.
   4. The branch adds `pydantic`, `pyyaml` and `mcp` to `requirements.txt`. AGENTS.md says to ask first: asked, approved by me on 25 November.
-- **Caught by:** calling the MCP server by hand; a mutation run (plain `MCPServer` → 5 failures); `git status` before committing.
+  5. Found by Tornike in review, on Windows: `test_both_doors_send_the_same_refusal` failed with `pydantic` 2.13, which lists two errors in a different order on each door. CI (2.14) and my machine passed. Fixed by sorting the errors by field in `invalid_arguments()`; checked green on 2.12, 2.13 and 2.14.
+- **Caught by:** calling the MCP server by hand; a mutation run (plain `MCPServer` → 5 failures); `git status` before committing; Tornike running `pytest` on his own machine.
 - **Decision:** kept, pending review by Tornike on the pull request.
 - **Cost:** two sessions; no paid model calls (the tests and the MCP run use no key).

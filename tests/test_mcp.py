@@ -71,6 +71,7 @@ def test_both_doors_send_the_same_refusal():
     bad = {**GOOD, "sold_pct": 150, "action": "RESERVE"}
     fc = call_tool({"id": "1", "name": "check_reserve", "arguments": json.dumps(bad)}, tools.tools_for(None), None)
     assert run(call("check_reserve", bad)).content[0].text.endswith(fc["error"])
+    assert fc["error"].startswith("invalid arguments: action: Extra inputs are not permitted; sold_pct: ")  # sorted
 
 
 def test_expected_failure_reaches_the_model_as_text(monkeypatch):

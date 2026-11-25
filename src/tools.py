@@ -25,8 +25,10 @@ class ToolFailure(Exception):
 
 def invalid_arguments(tool: str, e: ValidationError) -> str:
     """The one message both doors send for arguments that break a contract: which field, what was
-    wrong, what to do next. No stack trace, no echo of the input, no library name or link."""
-    problems = "; ".join(f"{'.'.join(map(str, x['loc'])) or 'arguments'}: {x['msg']}" for x in e.errors())
+    wrong, what to do next. No stack trace, no echo of the input, no library name or link.
+    Sorted by field, because pydantic's own order differs between versions and between JSON and
+    dict input (2.13 put an extra field first on one door and last on the other)."""
+    problems = "; ".join(sorted(f"{'.'.join(map(str, x['loc'])) or 'arguments'}: {x['msg']}" for x in e.errors()))
     return (f"invalid arguments: {problems}. Fix or remove only those arguments and call {tool} again, "
             "using the operator's own numbers; if the operator did not give a value, ask for it.")
 
